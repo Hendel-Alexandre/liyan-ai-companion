@@ -53,7 +53,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         {/* Lavender card */}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => onNavigate("chat")}
+          onClick={() => onNavigate("voice")}
           className="flex flex-col justify-between rounded-[24px] bg-lavender p-4 text-left"
           style={{ aspectRatio: "1/1" }}
         >
