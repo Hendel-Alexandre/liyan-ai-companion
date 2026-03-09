@@ -10,10 +10,22 @@ import SavedScreen from "./SavedScreen";
 const Index = () => {
   const [activeTab, setActiveTab] = useState("chat");
 
+  const [showVoiceChat, setShowVoiceChat] = useState(false);
+
+  const handleNavigate = (tab: string) => {
+    if (tab === "voice") {
+      setShowVoiceChat(true);
+    } else {
+      setShowVoiceChat(false);
+      setActiveTab(tab);
+    }
+  };
+
   const renderScreen = () => {
+    if (showVoiceChat) return <ChatScreen />;
     switch (activeTab) {
       case "chat":
-        return <HomeScreen onNavigate={setActiveTab} />;
+        return <HomeScreen onNavigate={handleNavigate} />;
       case "recite":
         return <ReciteScreen />;
       case "prayer":
@@ -21,7 +33,7 @@ const Index = () => {
       case "saved":
         return <SavedScreen />;
       default:
-        return <HomeScreen onNavigate={setActiveTab} />;
+        return <HomeScreen onNavigate={handleNavigate} />;
     }
   };
 
