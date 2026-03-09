@@ -33,7 +33,7 @@ const HomeScreen = ({ onNavigate }: HomeScreenProps) => {
         {/* Tall lime card */}
         <motion.button
           whileTap={{ scale: 0.97 }}
-          onClick={() => onNavigate("chat")}
+          onClick={() => onNavigate("voice")}
           className="row-span-2 flex flex-col justify-between rounded-[24px] bg-lime p-4 text-left"
           style={{ aspectRatio: "2/3", minHeight: 200 }}
         >

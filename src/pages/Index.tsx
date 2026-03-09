@@ -42,7 +42,7 @@ const Index = () => {
       <div className="w-full max-w-[430px] relative">
         <AnimatePresence mode="wait">
           <motion.div
-            key={activeTab}
+            key={showVoiceChat ? "voice" : activeTab}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -51,7 +51,7 @@ const Index = () => {
             {renderScreen()}
           </motion.div>
         </AnimatePresence>
-        <BottomTabs activeTab={activeTab} onTabChange={setActiveTab} />
+        <BottomTabs activeTab={activeTab} onTabChange={(tab) => { setShowVoiceChat(false); setActiveTab(tab); }} />
       </div>
     </div>
   );
