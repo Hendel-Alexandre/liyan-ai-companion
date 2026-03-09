@@ -1,0 +1,314 @@
+Context:
+This project is “Liyan AI”, a mobile-first Islamic companion app.
+The UI is mostly built, Supabase project is created, and Supabase credentials have already been added to Replit.
+
+Current problem:
+The app still needs to be fully hardened and connected properly on the backend so it can safely run in production.
+I want all provider/API integrations moved fully off the frontend.
+I do NOT want any secret API keys exposed in Vite frontend code, client env vars, browser bundles, or client-side requests.
+
+Your job:
+Audit the entire project and complete the backend/security migration so the app is safe, functional, and production-oriented.
+
+CRITICAL SECURITY REQUIREMENTS:
+- Never leave OpenAI, Anthropic, Gemini, ElevenLabs, Deepgram, or any other secret provider keys in the frontend.
+- Do not use VITE_ variables for secret keys.
+- Only keep the Supabase publishable URL/key in the frontend.
+- All other secrets must be requested from me and stored securely in Replit Secrets and/or Supabase Edge Function secrets.
+- Refactor any existing insecure direct frontend provider calls so they go through secure backend/server-side logic only.
+- If any current code exposes secrets client-side, fix it.
+
+==================================================
+1. FIRST TASK: AUDIT AND FIX SECURITY
+==================================================
+
+First, audit the current codebase for:
+- direct client-side API calls to AI providers
+- exposed secret env variables in frontend code
+- insecure fetch calls from React components/hooks/services
+- localStorage-only persistence where DB should be used
+- missing auth protection
+- missing row-level security assumptions
+- broken backend flows
+- placeholder logic that should now be real
+
+Then fix all insecure architecture.
+
+==================================================
+2. WHAT MUST REMAIN IN FRONTEND ENV ONLY
+==================================================
+
+Frontend may only use:
+- VITE_SUPABASE_URL
+- VITE_SUPABASE_ANON_KEY
+
+Nothing else sensitive should remain in the frontend.
+
+==================================================
+3. WHAT MUST BE MOVED TO BACKEND / SERVER SIDE
+==================================================
+
+Move all secret/provider logic off the frontend, including:
+- AI chat provider calls
+- fallback orchestration
+- TTS provider calls
+- STT provider calls
+- Quran recognition orchestration if using private APIs
+- any private external API integrations
+- any privileged database operations
+
+These should run through:
+- Supabase Edge Functions and/or
+- secure backend/server routes in Replit if needed
+
+Prefer Supabase Edge Functions for provider integrations.
+
+==================================================
+4. PROMPT ME TO ENTER ALL REQUIRED KEYS
+==================================================
+
+The app should not assume keys exist silently.
+
+Please create a clean setup flow that:
+1. Detects which providers/services are configured
+2. Lists which required keys are missing
+3. Prompts me clearly for the missing keys/secrets I need to add
+4. Tells me exactly where each one must go:
+   - Replit Secrets
+   - Supabase Edge Function secrets
+   - frontend env (only for Supabase public values)
+
+I want a checklist of all keys/secrets needed for the app to function.
+
+Expected secret checklist should include, where applicable:
+- OPENAI_API_KEY
+- ANTHROPIC_API_KEY
+- GEMINI_API_KEY
+- ELEVENLABS_API_KEY
+- DEEPGRAM_API_KEY
+- any Quran/hadith provider key if needed
+- any other provider-specific secret
+- Supabase service role key only if truly required server-side
+
+Do not hardcode example secrets into code.
+Create a setup validator instead.
+
+==================================================
+5. BUILD A SAFE CONFIG VALIDATION LAYER
+==================================================
+
+Implement a centralized config validation system.
+
+Requirements:
+- one server-side config module
+- validates all required secrets at startup or function runtime
+- returns clear error messages for missing keys
+- supports optional providers
+- supports fallback chain configuration
+- never leaks secrets to the client
+
+Example behavior:
+- if OpenAI missing, skip it and use Claude if configured
+- if Claude missing, skip it
+- if all AI providers missing, return a clean setup error
+- surface safe human-readable errors in the app/admin logs
+
+==================================================
+6. CONNECT SUPABASE PROPERLY
+==================================================
+
+Make sure Supabase is fully and correctly wired into the project.
+
+Requirements:
+- frontend uses only Supabase URL + publishable key
+- auth flow is properly initialized
+- DB calls use Supabase client safely
+- protected operations use authenticated user context
+- any privileged operations use server-side/service role only if needed
+- do not break existing mobile UI
+
+Also verify:
+- profiles table flow
+- user_settings flow
+- conversations/messages flow
+- saved items flow
+- quiz progress flow if present
+- quran recognition results flow if present
+
+==================================================
+7. MIGRATE TO SECURE API ARCHITECTURE
+==================================================
+
+Create/finish backend architecture for:
+
+A. chat-completion
+- secure endpoint/edge function
+- handles Islamic-safe system prompt
+- handles provider fallback chain
+- stores/logs provider_used
+- returns normalized response
+
+B. speech-tts
+- secure endpoint/edge function
+- uses selected voice gender
+- uses selected voice speed
+- does not expose provider keys
+
+C. speech-stt
+- secure endpoint/edge function
+- accepts audio safely
+- returns transcript
+
+D. daily-ayah
+- secure or public-safe service layer
+- cache aware
+
+E. daily-dua
+- secure or curated service layer
+- cache aware
+
+F. prayer-times
+- proxy/caching if useful
+
+G. quran-recognition
+- secure orchestration if needed
+
+==================================================
+8. MAKE THE APP ACTUALLY FUNCTIONAL END TO END
+==================================================
+
+I want the app to truly work, not just compile.
+
+Please ensure these flows work:
+
+- user signs in / session initializes
+- settings load from DB
+- text size works globally
+- voice speed works
+- feminine/masculine voice works
+- user sends a message
+- backend calls AI provider securely
+- fallback works if provider fails
+- chat saves in DB
+- old chats load correctly
+- chats can be deleted
+- clear all history works
+- daily ayah loads
+- daily dua loads
+- prayer times load
+- recitations load and play
+- saved items work
+
+Fix any backend issues preventing these flows.
+
+==================================================
+9. TEXT SIZE / VOICE SETTINGS MUST REALLY WORK
+==================================================
+
+These settings currently need to be solidified.
+
+A. Text size
+- implement a true global typography scaling system
+- all screens/components should respect it
+- persist in DB
+- restore on app boot
+
+B. Voice speed
+- map slow/normal/fast to real playback speed values
+- pass through backend/provider where needed
+- apply consistently
+
+C. Voice gender
+- map feminine/masculine to actual provider voice IDs
+- persist selection
+- use correct voice in playback
+
+Add a small “test voice” action in settings if useful.
+
+==================================================
+10. ADD A PROVIDER SETUP CHECKLIST / ADMIN DEBUG VIEW
+==================================================
+
+Create a simple internal setup/debug utility for development that shows:
+
+- Supabase connected: yes/no
+- Auth ready: yes/no
+- DB tables reachable: yes/no
+- OpenAI configured: yes/no
+- Anthropic configured: yes/no
+- Gemini configured: yes/no
+- ElevenLabs configured: yes/no
+- Deepgram configured: yes/no
+- prayer times provider ready: yes/no
+- Quran/recitation provider ready: yes/no
+
+This should never expose secret values.
+Just show setup status.
+
+If a required provider is missing, show a helpful message like:
+“Missing OPENAI_API_KEY in backend secrets.”
+Do not show the secret itself.
+
+==================================================
+11. DO NOT LEAVE THE APP HALF-MIGRATED
+==================================================
+
+Do not leave a mix of:
+- insecure frontend provider calls
+- partially migrated localStorage logic
+- broken DB persistence
+- dead placeholder functions
+
+Complete the migration cleanly.
+
+If localStorage remains at all, it should only be:
+- optional cache
+- migration helper
+- non-sensitive local UI preference cache if appropriate
+
+Supabase should become the source of truth for:
+- chats
+- messages
+- saved items
+- user settings
+- profiles
+
+==================================================
+12. REPLIT + SUPABASE DEPLOYMENT READINESS
+==================================================
+
+Because this is in Replit, prepare it so it is easy for me to finish setup.
+
+Please:
+- identify every secret I still need to add
+- tell me exactly whether each goes in Replit Secrets or Supabase secrets
+- add a short setup README section
+- make startup/config errors obvious
+- ensure no secret is required in frontend env
+
+==================================================
+13. DELIVERABLES
+==================================================
+
+Please do all of the following:
+
+1. Audit the existing codebase.
+2. Remove/fix all insecure frontend API usage.
+3. Connect Supabase properly across auth, DB, and persistence.
+4. Create/finish backend or edge-function integrations for provider APIs.
+5. Add a config validation layer.
+6. Add a provider/setup checklist.
+7. Prompt me clearly for every missing API key/secret needed.
+8. Ensure all major app flows work end to end.
+9. Fix any backend or persistence issues.
+10. Keep the UI intact and mobile-friendly.
+
+Also provide:
+- a concise list of exactly which secrets I need to add next
+- where each secret should be stored
+- any SQL migrations still needed
+- any Supabase Edge Functions I still need to deploy
+
+IMPORTANT:
+Do not just explain.
+Actually implement the architecture and code changes needed to make the app secure and functional.
