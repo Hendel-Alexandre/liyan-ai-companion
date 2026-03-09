@@ -1,45 +1,21 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 
 export interface AskResult {
     text: string;
     providerUsed: string;
 }
 
-const SYSTEM_PROMPT_HINT = 'See chat-completion edge function for the full server-side prompt.';
-
-const CONFIGURED = !!import.meta.env.VITE_SUPABASE_URL &&
-    import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
-
-/* ─── Main AI call via Supabase Edge Function ─── */
 export async function askLiyan(
     message: string,
     history: { role: 'user' | 'assistant'; content: string }[] = [],
 ): Promise<AskResult> {
-    if (!CONFIGURED) {
-        return {
-            text: 'Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to .env.local, then restart the dev server.',
-            providerUsed: 'none',
-        };
-    }
-
-    const { data, error } = await supabase.functions.invoke('chat-completion', {
-        body: {
-            message,
-            history: history.slice(-8),
-            primary_provider: import.meta.env.VITE_PRIMARY_AI_PROVIDER || 'claude',
-        },
-    });
-
-    if (error) throw new Error(error.message || 'Edge function error');
-    if (data?.error) throw new Error(data.error);
-
+    const data = await api.chat.completion(message, history);
     return {
         text: data.text ?? 'I could not generate a response.',
         providerUsed: data.provider_used ?? 'unknown',
     };
 }
 
-/* ─── Text-to-Speech (browser native) ─── */
 export function speakText(
     text: string,
     rate = 1.0,
@@ -76,7 +52,6 @@ export function speakText(
     }
 }
 
-/* ─── Speech-to-Text (browser native) ─── */
 export function startVoiceInput(
     onTranscript: (text: string) => void,
     onEnd: () => void,

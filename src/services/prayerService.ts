@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 
 export interface PrayerTimes {
     Fajr: string;
@@ -23,13 +23,7 @@ export interface PrayerTimesResult {
     location: string;
 }
 
-
-
-
-
 const CACHE_KEY = 'liyan_prayer_times';
-const CONFIGURED = !!import.meta.env.VITE_SUPABASE_URL &&
-    import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
 
 function todayStr() { return new Date().toISOString().split('T')[0]; }
 
@@ -46,12 +40,9 @@ function saveCache(data: PrayerTimesResult) {
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(data)); } catch { }
 }
 
-async function invokeEdgeFunction(params: Record<string, string>): Promise<PrayerTimesResult> {
-    const query = new URLSearchParams(params).toString();
-    const { data, error } = await supabase.functions.invoke(`prayer-times?${query}`);
-    if (error) throw new Error(error.message);
-
-    const result: PrayerTimesResult = {
+async function fetchFromApi(params: { lat?: number; lon?: number; city?: string; country?: string }): Promise<PrayerTimesResult> {
+    const data = await api.islamic.prayerTimes(params);
+    return {
         timings: data.timings,
         hijri: {
             day: data.hijri?.day ?? '',
@@ -61,37 +52,12 @@ async function invokeEdgeFunction(params: Record<string, string>): Promise<Praye
         date: todayStr(),
         location: data.location ?? 'Unknown',
     };
-    return result;
-}
-
-async function directAladhan(params: Record<string, string>): Promise<PrayerTimesResult> {
-    const isCity = params.city;
-    const url = isCity
-        ? `https://api.aladhan.com/v1/timingsByCity?city=${encodeURIComponent(params.city)}&country=${encodeURIComponent(params.country ?? 'SA')}&method=2`
-        : `https://api.aladhan.com/v1/timings?latitude=${params.lat}&longitude=${params.lon}&method=2`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-    if (!res.ok) throw new Error(`Aladhan ${res.status}`);
-    const json = await res.json() as any;
-    const { timings, date } = json.data;
-    return {
-        timings, hijri: date.hijri, date: todayStr(),
-        location: isCity ? `${params.city}, ${params.country ?? ''}` : `${Number(params.lat).toFixed(2)}, ${Number(params.lon).toFixed(2)}`,
-    };
-}
-
-async function fetchWithFallback(params: Record<string, string>): Promise<PrayerTimesResult> {
-    try {
-        if (CONFIGURED) return await invokeEdgeFunction(params);
-        return await directAladhan(params);
-    } catch {
-        return directAladhan(params);
-    }
 }
 
 export async function fetchPrayerTimesByCoords(lat: number, lon: number): Promise<PrayerTimesResult> {
     const cached = loadCache();
     if (cached) return cached;
-    const result = await fetchWithFallback({ lat: String(lat), lon: String(lon) });
+    const result = await fetchFromApi({ lat, lon });
     saveCache(result);
     return result;
 }
@@ -99,7 +65,7 @@ export async function fetchPrayerTimesByCoords(lat: number, lon: number): Promis
 export async function fetchPrayerTimesByCity(city: string, country: string): Promise<PrayerTimesResult> {
     const cached = loadCache();
     if (cached) return cached;
-    const result = await fetchWithFallback({ city, country });
+    const result = await fetchFromApi({ city, country });
     saveCache(result);
     return result;
 }

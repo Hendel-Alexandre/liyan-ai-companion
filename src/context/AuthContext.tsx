@@ -1,86 +1,73 @@
 import {
     createContext, useContext, useEffect, useState, useCallback, type ReactNode,
 } from 'react';
-import type { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabaseClient';
-import { bootstrapUser } from '@/services/authService';
+import { api } from '@/lib/api';
+
+export interface AuthUser {
+    id: string;
+    email: string;
+    name: string;
+}
 
 interface AuthContextValue {
-    user: User | null;
-    session: Session | null;
+    user: AuthUser | null;
     loading: boolean;
-    isConfigured: boolean;
     signUp: (email: string, password: string) => Promise<{ error: string | null }>;
     signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-    signInMagicLink: (email: string) => Promise<{ error: string | null }>;
-    signOut: () => Promise<void>;
+    signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue>({
-    user: null, session: null, loading: true, isConfigured: false,
+    user: null, loading: true,
     signUp: async () => ({ error: null }),
     signIn: async () => ({ error: null }),
-    signInMagicLink: async () => ({ error: null }),
-    signOut: async () => { },
+    signOut: () => { },
 });
 
-const SUPABASE_CONFIGURED =
-    !!import.meta.env.VITE_SUPABASE_URL &&
-    import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
+const TOKEN_KEY = 'liyan_token';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [session, setSession] = useState<Session | null>(null);
+    const [user, setUser] = useState<AuthUser | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!SUPABASE_CONFIGURED) { setLoading(false); return; }
-
-        // Get initial session
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            setSession(session);
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        // Listen to auth changes
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
-                setSession(session);
-                setUser(session?.user ?? null);
-                if (event === 'SIGNED_IN' && session?.user) {
-                    await bootstrapUser(session.user.id, session.user.email);
-                }
-            }
-        );
-
-        return () => subscription.unsubscribe();
+        const token = localStorage.getItem(TOKEN_KEY);
+        if (!token) { setLoading(false); return; }
+        api.auth.me()
+            .then(({ user: u }) => setUser(u))
+            .catch(() => localStorage.removeItem(TOKEN_KEY))
+            .finally(() => setLoading(false));
     }, []);
 
     const signUp = useCallback(async (email: string, password: string) => {
-        const { error } = await supabase.auth.signUp({ email, password });
-        return { error: error?.message ?? null };
+        try {
+            const { token, user: u } = await api.auth.signup(email, password);
+            localStorage.setItem(TOKEN_KEY, token);
+            setUser(u);
+            return { error: null };
+        } catch (err: any) {
+            return { error: err.message || 'Signup failed' };
+        }
     }, []);
 
     const signIn = useCallback(async (email: string, password: string) => {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        return { error: error?.message ?? null };
+        try {
+            const { token, user: u } = await api.auth.signin(email, password);
+            localStorage.setItem(TOKEN_KEY, token);
+            setUser(u);
+            return { error: null };
+        } catch (err: any) {
+            return { error: err.message || 'Sign in failed' };
+        }
     }, []);
 
-    const signInMagicLink = useCallback(async (email: string) => {
-        const { error } = await supabase.auth.signInWithOtp({ email });
-        return { error: error?.message ?? null };
-    }, []);
-
-    const signOut = useCallback(async () => {
-        await supabase.auth.signOut();
+    const signOut = useCallback(() => {
+        localStorage.removeItem(TOKEN_KEY);
+        setUser(null);
     }, []);
 
     return (
-        <AuthContext.Provider value={{
-            user, session, loading, isConfigured: SUPABASE_CONFIGURED,
-            signUp, signIn, signInMagicLink, signOut,
-        }}>
+        <AuthContext.Provider value={{ user, loading, signUp, signIn, signOut }}>
             {children}
         </AuthContext.Provider>
     );

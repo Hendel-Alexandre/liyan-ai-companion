@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 import type { Dua } from './types';
 
 const DUAS: Dua[] = [
@@ -18,9 +18,6 @@ function dayIndex() {
     return Math.floor((Date.now() - start.getTime()) / 86400000);
 }
 
-const CONFIGURED = !!import.meta.env.VITE_SUPABASE_URL &&
-    import.meta.env.VITE_SUPABASE_URL !== 'https://placeholder.supabase.co';
-
 export async function getDailyDua(): Promise<Dua> {
     try {
         const raw = localStorage.getItem(CACHE_KEY);
@@ -30,11 +27,8 @@ export async function getDailyDua(): Promise<Dua> {
         }
     } catch { }
 
-    if (!CONFIGURED) return DUAS[dayIndex() % DUAS.length];
-
     try {
-        const { data, error } = await supabase.functions.invoke('daily-dua');
-        if (error || !data) throw new Error('edge fn failed');
+        const data = await api.islamic.dailyDua();
         const dua: Dua = {
             id: 'daily',
             title: data.title,

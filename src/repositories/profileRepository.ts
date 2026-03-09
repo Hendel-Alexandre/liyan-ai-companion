@@ -1,25 +1,18 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 
 export interface DbProfile {
     id: string;
-    name: string | null;
-    avatar_url: string | null;
+    name: string;
+    email?: string;
+    created_at?: string;
 }
 
-export async function getProfile(userId: string): Promise<DbProfile | null> {
-    const { data, error } = await supabase
-        .from('profiles')
-        .select('id, name, avatar_url')
-        .eq('id', userId)
-        .maybeSingle();
-    if (error) { console.warn('[profileRepo] get:', error.message); return null; }
-    return data as DbProfile;
+export async function getProfile(_userId: string): Promise<DbProfile | null> {
+    try { return await api.user.getProfile(); }
+    catch (err) { console.warn('[profileRepo] get:', err); return null; }
 }
 
-export async function updateProfile(userId: string, patch: { name?: string; avatar_url?: string }) {
-    const { error } = await supabase
-        .from('profiles')
-        .update(patch)
-        .eq('id', userId);
-    if (error) console.warn('[profileRepo] update:', error.message);
+export async function updateProfile(_userId: string, patch: { name: string }) {
+    try { await api.user.updateProfile(patch); }
+    catch (err) { console.warn('[profileRepo] update:', err); }
 }

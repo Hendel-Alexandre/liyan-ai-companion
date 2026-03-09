@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 
 export type SavedItemType = 'chat' | 'ayah' | 'dua' | 'recitation' | 'prayer_guide' | 'quran_match';
 
@@ -13,18 +13,13 @@ export interface DbSavedItem {
     created_at: string;
 }
 
-export async function listSavedItems(userId: string): Promise<DbSavedItem[]> {
-    const { data, error } = await supabase
-        .from('saved_items')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: false });
-    if (error) { console.warn('[savedRepo] list:', error.message); return []; }
-    return (data ?? []) as DbSavedItem[];
+export async function listSavedItems(_userId: string): Promise<DbSavedItem[]> {
+    try { return await api.user.listSaved(); }
+    catch (err) { console.warn('[savedRepo] list:', err); return []; }
 }
 
 export async function addSavedItem(
-    userId: string,
+    _userId: string,
     item: {
         item_type: SavedItemType;
         title: string;
@@ -33,21 +28,16 @@ export async function addSavedItem(
         payload_json?: Record<string, any>;
     }
 ): Promise<DbSavedItem | null> {
-    const { data, error } = await supabase
-        .from('saved_items')
-        .insert({ user_id: userId, ...item })
-        .select('*')
-        .single();
-    if (error) { console.warn('[savedRepo] add:', error.message); return null; }
-    return data as DbSavedItem;
+    try { return await api.user.addSaved(item); }
+    catch (err) { console.warn('[savedRepo] add:', err); return null; }
 }
 
 export async function removeSavedItem(itemId: string) {
-    const { error } = await supabase.from('saved_items').delete().eq('id', itemId);
-    if (error) console.warn('[savedRepo] remove:', error.message);
+    try { await api.user.removeSaved(itemId); }
+    catch (err) { console.warn('[savedRepo] remove:', err); }
 }
 
-export async function clearAllSavedItems(userId: string) {
-    const { error } = await supabase.from('saved_items').delete().eq('user_id', userId);
-    if (error) console.warn('[savedRepo] clearAll:', error.message);
+export async function clearAllSavedItems(_userId: string) {
+    try { await api.user.clearSaved(); }
+    catch (err) { console.warn('[savedRepo] clearAll:', err); }
 }

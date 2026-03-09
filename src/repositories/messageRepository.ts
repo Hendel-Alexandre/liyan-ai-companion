@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 
 export interface DbMessage {
     id: string;
@@ -13,13 +13,8 @@ export interface DbMessage {
 }
 
 export async function listMessages(conversationId: string): Promise<DbMessage[]> {
-    const { data, error } = await supabase
-        .from('messages')
-        .select('*')
-        .eq('conversation_id', conversationId)
-        .order('created_at', { ascending: true });
-    if (error) { console.warn('[msgRepo] list:', error.message); return []; }
-    return (data ?? []) as DbMessage[];
+    try { return await api.chat.listMessages(conversationId); }
+    catch (err) { console.warn('[msgRepo] list:', err); return []; }
 }
 
 export async function insertMessage(
@@ -28,16 +23,18 @@ export async function insertMessage(
         metadata_json?: Record<string, any>;
     }
 ): Promise<DbMessage | null> {
-    const { data, error } = await supabase
-        .from('messages')
-        .insert(msg)
-        .select('*')
-        .single();
-    if (error) { console.warn('[msgRepo] insert:', error.message); return null; }
-    return data as DbMessage;
+    try {
+        return await api.chat.insertMessage(msg.conversation_id, {
+            role: msg.role,
+            content: msg.content,
+            provider_used: msg.provider_used,
+            metadata_json: msg.metadata_json,
+        });
+    } catch (err) { console.warn('[msgRepo] insert:', err); return null; }
 }
 
 export async function bulkInsertMessages(messages: Omit<DbMessage, 'id' | 'created_at'>[]) {
-    const { error } = await supabase.from('messages').insert(messages);
-    if (error) console.warn('[msgRepo] bulkInsert:', error.message);
+    for (const msg of messages) {
+        await insertMessage(msg);
+    }
 }

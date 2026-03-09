@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 
 export interface DbSettings {
     id?: string;
@@ -11,25 +11,16 @@ export interface DbSettings {
     voice_id?: string;
     city?: string;
     country?: string;
+    created_at?: string;
+    updated_at?: string;
 }
 
-export async function getSettings(userId: string): Promise<DbSettings | null> {
-    const { data, error } = await supabase
-        .from('user_settings')
-        .select('*')
-        .eq('user_id', userId)
-        .maybeSingle();
-    if (error) { console.warn('[settingsRepo] get:', error.message); return null; }
-    return data as DbSettings;
+export async function getSettings(_userId: string): Promise<DbSettings | null> {
+    try { return await api.user.getSettings(); }
+    catch (err) { console.warn('[settingsRepo] get:', err); return null; }
 }
 
-export async function upsertSettings(
-    userId: string,
-    patch: Partial<Omit<DbSettings, 'id' | 'user_id'>>
-): Promise<void> {
-    const { error } = await supabase.from('user_settings').upsert(
-        { user_id: userId, ...patch },
-        { onConflict: 'user_id' }
-    );
-    if (error) console.warn('[settingsRepo] upsert:', error.message);
+export async function upsertSettings(_userId: string, settings: Partial<Omit<DbSettings, 'id' | 'user_id' | 'created_at' | 'updated_at'>>) {
+    try { await api.user.upsertSettings(settings); }
+    catch (err) { console.warn('[settingsRepo] upsert:', err); }
 }

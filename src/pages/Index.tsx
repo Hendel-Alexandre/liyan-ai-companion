@@ -21,11 +21,10 @@ type SubScreen =
 const TABS = ["home", "recite", "chat", "learn", "settings"] as const;
 
 const Index = () => {
-  const { user, loading, isConfigured } = useAuth();
+  const { user, loading } = useAuth();
   const [activeTab, setActiveTab] = useState("chat");
   const [subScreen, setSubScreen] = useState<SubScreen>(null);
 
-  // Show loading state briefly
   if (loading) {
     return (
       <div style={{
@@ -39,8 +38,7 @@ const Index = () => {
     );
   }
 
-  // Show auth screen if Supabase is configured but user not signed in
-  if (isConfigured && !user) {
+  if (!user) {
     return <AuthScreen />;
   }
 

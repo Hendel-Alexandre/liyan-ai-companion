@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient';
+import { api } from '@/lib/api';
 
 export interface DbConversation {
     id: string;
@@ -10,54 +10,32 @@ export interface DbConversation {
     last_message_at: string;
 }
 
-export async function listConversations(userId: string): Promise<DbConversation[]> {
-    const { data, error } = await supabase
-        .from('conversations')
-        .select('*')
-        .eq('user_id', userId)
-        .order('last_message_at', { ascending: false });
-    if (error) { console.warn('[convRepo] list:', error.message); return []; }
-    return (data ?? []) as DbConversation[];
+export async function listConversations(_userId: string): Promise<DbConversation[]> {
+    try { return await api.chat.listConversations(); }
+    catch (err) { console.warn('[convRepo] list:', err); return []; }
 }
 
-export async function createConversation(userId: string, title = 'New conversation'): Promise<DbConversation | null> {
-    const { data, error } = await supabase
-        .from('conversations')
-        .insert({ user_id: userId, title })
-        .select('*')
-        .single();
-    if (error) { console.warn('[convRepo] create:', error.message); return null; }
-    return data as DbConversation;
+export async function createConversation(_userId: string, title = 'New conversation'): Promise<DbConversation | null> {
+    try { return await api.chat.createConversation(title); }
+    catch (err) { console.warn('[convRepo] create:', err); return null; }
 }
 
 export async function updateConversationTitle(conversationId: string, title: string) {
-    const { error } = await supabase
-        .from('conversations')
-        .update({ title })
-        .eq('id', conversationId);
-    if (error) console.warn('[convRepo] updateTitle:', error.message);
+    try { await api.chat.updateConversation(conversationId, { title }); }
+    catch (err) { console.warn('[convRepo] updateTitle:', err); }
 }
 
 export async function touchConversation(conversationId: string, providerUsed?: string) {
-    const { error } = await supabase
-        .from('conversations')
-        .update({ last_message_at: new Date().toISOString(), provider_last_used: providerUsed ?? null })
-        .eq('id', conversationId);
-    if (error) console.warn('[convRepo] touch:', error.message);
+    try { await api.chat.updateConversation(conversationId, { provider_last_used: providerUsed }); }
+    catch (err) { console.warn('[convRepo] touch:', err); }
 }
 
 export async function deleteConversation(conversationId: string) {
-    const { error } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('id', conversationId);
-    if (error) console.warn('[convRepo] delete:', error.message);
+    try { await api.chat.deleteConversation(conversationId); }
+    catch (err) { console.warn('[convRepo] delete:', err); }
 }
 
-export async function clearAllConversations(userId: string) {
-    const { error } = await supabase
-        .from('conversations')
-        .delete()
-        .eq('user_id', userId);
-    if (error) console.warn('[convRepo] clearAll:', error.message);
+export async function clearAllConversations(_userId: string) {
+    try { await api.chat.clearConversations(); }
+    catch (err) { console.warn('[convRepo] clearAll:', err); }
 }

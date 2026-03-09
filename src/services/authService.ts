@@ -1,42 +1,18 @@
-import { supabase } from '@/lib/supabaseClient';
-import { upsertSettings } from '@/repositories/settingsRepository';
+import { api } from '@/lib/api';
 
-/** Called once on SIGNED_IN — creates profile and default settings rows if absent */
-export async function bootstrapUser(userId: string, email?: string | null) {
-    try {
-        // 1. Upsert profile
-        await supabase.from('profiles').upsert(
-            { id: userId, name: email?.split('@')[0] ?? '' },
-            { onConflict: 'id' }
-        );
-
-        // 2. Upsert default settings (only if not already present)
-        const { data: existing } = await supabase
-            .from('user_settings')
-            .select('id')
-            .eq('user_id', userId)
-            .maybeSingle();
-
-        if (!existing) {
-            await upsertSettings(userId, {
-                accent_color: 'lime',
-                text_size: 'medium',
-                voice_speed: 'normal',
-                voice_gender: 'feminine',
-                voice_provider: 'browser',
-            });
-        }
-    } catch (err) {
-        console.error('[authService] bootstrap error:', err);
-    }
+export async function bootstrapUser(_userId: string, _email?: string | null) {
+    // Settings are auto-created on signup via server
 }
 
 export async function getCurrentUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    return user;
+    try {
+        const { user } = await api.auth.me();
+        return user;
+    } catch {
+        return null;
+    }
 }
 
 export async function getAccessToken(): Promise<string | null> {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token ?? null;
+    return localStorage.getItem('liyan_token');
 }
