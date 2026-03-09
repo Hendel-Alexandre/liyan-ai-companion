@@ -1,134 +1,346 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Amiri:wght@400;700&display=swap');
-
+@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Scheherazade+New:wght@400;700&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 100%;
+/* ═══════════════════════════════════════
+   DESIGN TOKENS — Frosted Dark Mode
+   ═══════════════════════════════════════ */
+:root {
+  /* Base surfaces — light neutral */
+  --bg: #F2F2F7;
+  --bg2: #FFFFFF;
+  --surface: #FFFFFF;
+  --surface2: #F2F2F7;
+  --surface-solid: #FFFFFF;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.12);
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 100%;
+  /* Typography */
+  --text: #0A0A0F;
+  --text-muted: #6B6B80;
+  --text-soft: #8A8A9A;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 100%;
+  /* Shape */
+  --radius-card: 20px;
+  --radius-btn: 12px;
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
 
-    --primary: 72 100% 50%;
-    --primary-foreground: 0 0% 0%;
-
-    --secondary: 263 45% 79%;
-    --secondary-foreground: 0 0% 0%;
-
-    --muted: 0 0% 10%;
-    --muted-foreground: 0 0% 53%;
-
-    --accent: 338 78% 88%;
-    --accent-foreground: 0 0% 0%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-
-    --border: 0 0% 15%;
-    --input: 0 0% 15%;
-    --ring: 72 100% 50%;
-
-    --radius: 1rem;
-
-    --surface: 0 0% 10%;
-    --lime: 72 100% 50%;
-    --lavender: 263 45% 79%;
-    --rose: 338 78% 88%;
-
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 72 100% 50%;
-    --sidebar-primary-foreground: 0 0% 0%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 0 0% 15%;
-    --sidebar-ring: 72 100% 50%;
-  }
+  /* Default accent — Lime */
+  --accent: #CCFF00;
+  --accent-text: #000000;
+  --accent-rgb: 204, 255, 0;
+  --accent-glow: rgba(204, 255, 0, 0.18);
 }
 
+/* ═══════════════════════════════════════
+   ACCENT THEMES (only accent vars change)
+   ═══════════════════════════════════════ */
+[data-theme="lime"] {
+  --accent: #CCFF00;
+  --accent-text: #000000;
+  --accent-rgb: 204, 255, 0;
+  --accent-glow: rgba(204, 255, 0, 0.18);
+}
+
+[data-theme="purple"] {
+  --accent: #A78BFA;
+  --accent-text: #000000;
+  --accent-rgb: 167, 139, 250;
+  --accent-glow: rgba(167, 139, 250, 0.18);
+}
+
+[data-theme="green"] {
+  --accent: #4ADE80;
+  --accent-text: #000000;
+  --accent-rgb: 74, 222, 128;
+  --accent-glow: rgba(74, 222, 128, 0.18);
+}
+
+[data-theme="pink"] {
+  --accent: #F472B6;
+  --accent-text: #000000;
+  --accent-rgb: 244, 114, 182;
+  --accent-glow: rgba(244, 114, 182, 0.18);
+}
+
+[data-theme="blue"] {
+  --accent: #60A5FA;
+  --accent-text: #000000;
+  --accent-rgb: 96, 165, 250;
+  --accent-glow: rgba(96, 165, 250, 0.18);
+}
+
+/* ═══════════════════════════════════════
+   BASE RESET
+   ═══════════════════════════════════════ */
 @layer base {
-  * {
-    @apply border-border;
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    font-size: 16px;
   }
 
   body {
-    @apply bg-background text-foreground font-outfit;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, 'SF Pro Display', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    overflow: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.03em;
+    font-weight: 700;
+  }
+
+  /* Arabic spiritual text */
+  .arabic {
+    font-family: 'Amiri', 'Scheherazade New', Georgia, serif;
+    direction: rtl;
+    text-align: right;
   }
 }
 
-@layer utilities {
-  .tracking-tight-custom {
-    letter-spacing: -0.02em;
+/* ═══════════════════════════════════════
+   CSS ORB (layered gradient)
+   ═══════════════════════════════════════ */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
-/* Topographic background pattern */
-.topo-pattern {
+.orb {
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.20);
+  background:
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0) 55%),
+    radial-gradient(circle at 72% 74%, rgba(var(--accent-rgb), 0.3) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(var(--accent-rgb), 0.6) 0%, rgba(var(--accent-rgb), 0.2) 50%, rgba(0, 0, 0, 0.8) 100%);
+  box-shadow:
+    0 0 20px rgba(var(--accent-rgb), 0.35),
+    0 4px 16px rgba(0, 0, 0, 0.5);
+  animation: orb-idle 3.5s ease-in-out infinite, orb-hue 5s ease-in-out infinite;
   position: relative;
+  flex-shrink: 0;
 }
 
-.topo-pattern::before,
-.topo-pattern::after {
-  content: '';
+.orb.orb-listening {
+  animation: orb-active 1s ease-in-out infinite, orb-hue 5s ease-in-out infinite;
+  box-shadow:
+    0 0 36px rgba(var(--accent-rgb), 0.6),
+    0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+.orb-ring {
   position: absolute;
-  width: 200px;
-  height: 200px;
+  border-radius: 50%;
+  border: 1px solid rgba(var(--accent-rgb), 0.5);
+  opacity: 0;
+  animation: orb-ring-expand 1.6s ease-out infinite;
   pointer-events: none;
-  opacity: 0.04;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cpath d='M30 160c20-30 60-50 90-40s50 40 70 30' fill='none' stroke='white' stroke-width='0.8'/%3E%3Cpath d='M20 140c25-25 55-45 85-35s55 35 75 25' fill='none' stroke='white' stroke-width='0.8'/%3E%3Cpath d='M25 120c20-20 50-40 80-30s50 30 70 20' fill='none' stroke='white' stroke-width='0.8'/%3E%3Cpath d='M35 100c15-20 45-35 75-25s45 30 65 15' fill='none' stroke='white' stroke-width='0.8'/%3E%3Cpath d='M40 80c20-15 40-30 70-20s40 25 55 10' fill='none' stroke='white' stroke-width='0.8'/%3E%3Cpath d='M50 60c15-15 35-25 60-15s35 20 50 10' fill='none' stroke='white' stroke-width='0.8'/%3E%3Cpath d='M55 45c15-10 30-20 50-12s30 18 45 8' fill='none' stroke='white' stroke-width='0.8'/%3E%3Cpath d='M65 30c10-8 25-15 40-8s25 12 35 5' fill='none' stroke='white' stroke-width='0.8'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
 }
 
-.topo-pattern::before {
-  top: 0;
-  right: 0;
+.orb-ring:nth-child(2) {
+  animation-delay: 0.8s;
 }
 
-.topo-pattern::after {
-  bottom: 0;
-  left: 0;
-  transform: rotate(180deg);
+@keyframes orb-idle {
+
+  0%,
+  100% {
+    transform: scale(1)
+  }
+
+  50% {
+    transform: scale(1.04)
+  }
 }
 
-/* Orb animation */
-@keyframes orb-pulse {
-  0%, 100% { transform: scale(1); filter: hue-rotate(0deg); }
-  50% { transform: scale(1.05); filter: hue-rotate(30deg); }
+@keyframes orb-active {
+
+  0%,
+  100% {
+    transform: scale(1)
+  }
+
+  50% {
+    transform: scale(1.12)
+  }
 }
 
-@keyframes orb-pulse-fast {
-  0%, 100% { transform: scale(1); filter: hue-rotate(0deg); }
-  25% { transform: scale(1.08); filter: hue-rotate(45deg); }
-  50% { transform: scale(0.95); filter: hue-rotate(90deg); }
-  75% { transform: scale(1.06); filter: hue-rotate(135deg); }
+@keyframes orb-hue {
+
+  0%,
+  100% {
+    filter: hue-rotate(0deg)
+  }
+
+  50% {
+    filter: hue-rotate(15deg)
+  }
 }
 
-@keyframes ripple {
-  0% { transform: scale(1); opacity: 0.2; }
-  100% { transform: scale(2.5); opacity: 0; }
+@keyframes orb-ring-expand {
+  0% {
+    opacity: 0.4;
+    transform: scale(1)
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.9)
+  }
 }
 
-.orb-idle {
-  animation: orb-pulse 4s ease-in-out infinite;
+/* ═══════════════════════════════════════
+   AMBIENT BACKGROUND
+   ═══════════════════════════════════════ */
+.ambient-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
 }
 
-.orb-listening {
-  animation: orb-pulse-fast 1.5s ease-in-out infinite;
+.amb-1 {
+  width: 380px;
+  height: 380px;
+  top: -60px;
+  left: -80px;
+  background: rgba(var(--accent-rgb), 1);
+  opacity: 0.05;
+  animation: amb-drift1 18s ease-in-out infinite alternate;
 }
 
-/* Scrollbar styling */
+.amb-2 {
+  width: 320px;
+  height: 320px;
+  bottom: 15%;
+  right: -60px;
+  background: #60A5FA;
+  opacity: 0.035;
+  animation: amb-drift2 24s ease-in-out infinite alternate;
+}
+
+.amb-3 {
+  width: 260px;
+  height: 260px;
+  top: 48%;
+  left: 28%;
+  background: #A78BFA;
+  opacity: 0.03;
+  animation: amb-drift1 20s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes amb-drift1 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(16px, -12px) scale(1.06);
+  }
+
+  100% {
+    transform: translate(-10px, 14px) scale(0.96);
+  }
+}
+
+@keyframes amb-drift2 {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(-14px, 10px) scale(1.04);
+  }
+
+  100% {
+    transform: translate(12px, -16px) scale(0.97);
+  }
+}
+
+.amb-particle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 1);
+  pointer-events: none;
+  animation: p-float var(--dur, 8s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes p-float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.10;
+  }
+
+  50% {
+    transform: translateY(-14px);
+    opacity: 0.25;
+  }
+}
+
+/* ═══════════════════════════════════════
+   UTILITIES
+   ═══════════════════════════════════════ */
+@layer utilities {
+  .overflow-scroll-y {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  .snap-x-mandatory {
+    scroll-snap-type: x mandatory;
+  }
+
+  .snap-start {
+    scroll-snap-align: start;
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+  }
+
+  .pt-safe {
+    padding-top: max(0.8rem, env(safe-area-inset-top));
+  }
+
+  .pb-nav {
+    padding-bottom: calc(72px + max(0px, env(safe-area-inset-bottom)));
+  }
+}
+
+/* ═══════════════════════════════════════
+   SCROLLBAR STYLE
+   ═══════════════════════════════════════ */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
 }
 
 ::-webkit-scrollbar-track {
@@ -136,6 +348,6 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(0 0% 20%);
-  border-radius: 4px;
+  background: var(--border);
+  border-radius: 3px;
 }
