@@ -4,10 +4,12 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import pool from './db.js';
+import { logConfigStatus } from './config.js';
 import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import islamicRoutes from './routes/islamicRoutes.js';
+import setupRoutes from './routes/setupRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -22,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/islamic', islamicRoutes);
+app.use('/api/setup', setupRoutes);
 
 app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -37,6 +40,9 @@ async function initDb() {
         console.error('[server] DB init error:', err);
     }
 }
+
+// Log config status at startup
+logConfigStatus();
 
 initDb().then(() => {
     app.listen(PORT, () => {
