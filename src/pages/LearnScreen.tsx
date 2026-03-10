@@ -48,9 +48,9 @@ const PRAYER_STEPS = [
     { number: 8, title: 'Tashahhud & Salaam', description: "Sit, recite At-Tashahhud, then Salawat on the Prophet ﷺ. End with Salaam to both sides." },
 ];
 
-const WUDU_STEPS = [
+const WUDU_STEPS: { number: number; title: string; arabic?: string; transliteration?: string; description: string }[] = [
     { number: 1, title: 'Intention', description: 'Form the intention to purify yourself for prayer.' },
-    { number: 2, title: 'Bismillah', arabic: 'بِسۡمِ ٱللَّهِ', description: 'Begin with "Bismillah" as a blessed beginning.' },
+    { number: 2, title: 'Bismillah', arabic: 'بِسۡمِ ٱللَّهِ', transliteration: 'Bismillāh', description: 'Begin with "Bismillah" as a blessed beginning.' },
     { number: 3, title: 'Wash Both Hands', description: 'Wash each hand up to and including the wrist, three times.' },
     { number: 4, title: 'Rinse the Mouth', description: 'Rinse the mouth thoroughly three times.' },
     { number: 5, title: 'Inhale & Blow Nose', description: 'Inhale water into the nose and blow it out, three times.' },
