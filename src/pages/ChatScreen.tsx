@@ -93,7 +93,7 @@ const ChatScreen = () => {
     if (convId) {
       const conv = chat.conversations.find(c => c.id === convId);
       if (conv) setMsgs(conv.messages.map(m => ({
-        id: m.id, role: m.role as any, text: m.content, timestamp: new Date(m.createdAt || Date.now())
+        id: m.id, role: m.role as any, text: m.content, timestamp: new Date(m.timestamp || Date.now())
       })));
     }
   }, [convId]);

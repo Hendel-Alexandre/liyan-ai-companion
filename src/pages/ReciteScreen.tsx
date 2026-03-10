@@ -73,7 +73,6 @@ const ReciteScreen = () => {
   const save = () => {
     if (isSaved) { removeItem(savedId); return; }
     addItem({
-      id: savedId,
       title: `${selected.title} (${selected.arabicTitle})`,
       snippet: selected.verses[0]?.translation || '',
       category: 'Recitations',
