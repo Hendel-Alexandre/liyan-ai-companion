@@ -199,7 +199,7 @@ const SavedScreen = () => {
                 </div>
                 <div
                   className="text-[14px] font-inter leading-relaxed scroll-y"
-                  style={{ color: "var(--text)", maxHeight: 300, color: "var(--text)" }}
+                  style={{ color: "var(--text)", maxHeight: 300 }}
                 >
                   {modalItem.fullContent || modalItem.snippet}
                 </div>

@@ -1,6 +1,6 @@
 import { Trophy } from 'lucide-react';
 import { motion } from 'framer-motion';
-import type { QuizDifficulty } from '@/services/quizService';
+import type { QuizDifficulty } from '@/services/types';
 
 interface Props {
     onStart: (difficulty: QuizDifficulty) => void;

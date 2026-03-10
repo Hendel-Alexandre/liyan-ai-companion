@@ -1,17 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bookmark, BookMarked } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getDailyDua } from '@/services/duaService';
+import { getDailyDuaSync } from '@/services/duaService';
 import { useSaved } from '@/context/SavedContext';
+import type { Dua } from '@/services/types';
 
 interface Props {
     onExpand?: () => void;
 }
 
 export const DailyDuaWidget = ({ onExpand }: Props) => {
-    const dua = getDailyDua();
+    const [dua, setDua] = useState<Dua>(getDailyDuaSync());
     const { addItem, items } = useSaved();
     const [expanded, setExpanded] = useState(false);
+
+    useEffect(() => {
+        getDailyDua().then(setDua);
+    }, []);
+
     const savedId = `dua-${dua.id}`;
     const isSaved = items.some(i => i.id === savedId);
 
@@ -19,7 +26,6 @@ export const DailyDuaWidget = ({ onExpand }: Props) => {
         e.stopPropagation();
         if (!isSaved) {
             addItem({
-                id: savedId,
                 title: dua.title,
                 snippet: dua.translation,
                 category: 'Duas',

@@ -1,4 +1,7 @@
-import { QuizQuestion, QuizDifficulty } from './types';
+import type { QuizQuestion, QuizDifficulty } from './types';
+
+// Re-export QuizDifficulty so consumers can import from here
+export type { QuizDifficulty } from './types';
 
 const EASY: QuizQuestion[] = [
     {

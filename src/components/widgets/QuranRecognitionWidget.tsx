@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Mic, Upload, RotateCcw, BookOpen } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { recognizeQuran } from '@/services/quranRecognitionService';
@@ -30,7 +30,6 @@ export const QuranRecognitionWidget = ({ onNavigateRecite }: Props) => {
     const saveResult = () => {
         if (!result?.found) return;
         addItem({
-            id: `rec-${result.surahNumber}-${result.ayahNumber}-${Date.now()}`,
             title: `${result.surahName} ${result.surahNumber}:${result.ayahNumber}`,
             snippet: result.translation || '',
             category: 'Recitations',

@@ -68,7 +68,7 @@ const DailyCarousel = ({ ayah, dua, onNavigate }: { ayah: any; dua: any; onNavig
 
   const variants = {
     enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0, scale: 0.93 }),
-    center: { x: 0, opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 320, damping: 30 } },
+    center: { x: 0, opacity: 1, scale: 1, transition: { type: 'spring' as const, stiffness: 320, damping: 30 } },
     exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0, scale: 0.93, transition: { duration: 0.18 } }),
   };
 
