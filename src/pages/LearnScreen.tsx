@@ -159,7 +159,7 @@ const StepCard = ({ number, title, arabic, transliteration, description, checked
     </motion.div>
 );
 
-const ChecklistModal = ({ steps, prefix }: { steps: typeof PRAYER_STEPS; prefix: string }) => {
+const ChecklistModal = ({ steps, prefix }: { steps: { number: number; title: string; arabic?: string; transliteration?: string; description: string }[]; prefix: string }) => {
     const [checked, setChecked] = useState<Set<string>>(new Set());
     const toggle = (k: string) => setChecked(prev => { const s = new Set(prev); s.has(k) ? s.delete(k) : s.add(k); return s; });
     const done = steps.filter(s => checked.has(`${prefix}-${s.number}`)).length;
