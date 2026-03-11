@@ -82,7 +82,8 @@ const AuthScreen = () => {
 
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 11 }}>
                             <input
-                                type="email" placeholder="Email address" value={email}
+                                type="text" inputMode="email" autoComplete="email"
+                                placeholder="Email address" value={email}
                                 onChange={e => setEmail(e.target.value)} style={inp}
                             />
                             <input
